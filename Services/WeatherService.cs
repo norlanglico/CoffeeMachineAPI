@@ -15,20 +15,30 @@ namespace CoffeeMachineAPI.Services
 
         public async Task<double?> GetCurrentTemperatureAsync()
         {
-            string url = $"https://api.openweathermap.org/data/2.5/weather?q={ _city }&appid={ _apiKey }&units=metric";
-            HttpResponseMessage response = await _httpClient.GetAsync(url);
-
-            if (response.IsSuccessStatusCode)
+            try
             {
-                string jsonResponse = await response.Content.ReadAsStringAsync();
-                using (JsonDocument doc = JsonDocument.Parse(jsonResponse))
+                // Fetch Open Weather API
+                string url = $"https://api.openweathermap.org/data/2.5/weather?q={_city}&appid={_apiKey}&units=metric";
+                HttpResponseMessage response = await _httpClient.GetAsync(url);
+
+                // Check if the API response was successful and return the temp value
+                if (response.IsSuccessStatusCode)
                 {
-                    JsonElement root = doc.RootElement;
-                    JsonElement main = root.GetProperty("main");
-                    return main.GetProperty("temp").GetDouble();
+                    string jsonResponse = await response.Content.ReadAsStringAsync();
+                    using (JsonDocument doc = JsonDocument.Parse(jsonResponse))
+                    {
+                        JsonElement root = doc.RootElement;
+                        JsonElement main = root.GetProperty("main");
+                        return main.GetProperty("temp").GetDouble();
+                    }
                 }
+
+                return null;
             }
-            return null;
+            catch(Exception ex)
+            {
+                return null;
+            }
         }
 
     }

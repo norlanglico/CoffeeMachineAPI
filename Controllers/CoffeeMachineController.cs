@@ -17,13 +17,16 @@ namespace CoffeeMachineAPI.Controllers
         [HttpGet("brew-coffee")]
         public async Task<IActionResult> Get()
         {
-            var temperature = await _weatherService.GetCurrentTemperatureAsync();
+            double? temperature = await _weatherService.GetCurrentTemperatureAsync();
             string responseMessage = "Your piping hot coffee is ready";
 
-            if (temperature != null && temperature > 30)
-            {
-                responseMessage = "Your refreshing iced coffee is ready";                                  
-            }
+            // Check if temperature has a value and return error response if null
+            if (temperature == null)            
+                return StatusCode(500);            
+
+            // Change the response message if the temperature is greater than 30 degree celsius
+            else if (temperature > 30)            
+                responseMessage = "Your refreshing iced coffee is ready";            
 
             var response = new
             {
